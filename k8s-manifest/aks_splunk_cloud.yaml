@@ -1,0 +1,7 @@
+splunk:
+  hec:
+   protocol: https
+   host: splunk-hec-ext.org.net
+   port: 8088
+   token: XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX
+   indexName: plat_app_preprod

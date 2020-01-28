@@ -1,0 +1,60 @@
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: monitoring
+aggregationRule:
+  clusterRoleSelectors:
+  - matchLabels:
+      rbac.example.com/aggregate-to-monitoring: "true"
+# Rules are automatically filled in by the controller manager.
+rules: []
+---
+# These rules will be added to the "monitoring" role.
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: monitoring-endpoints
+  labels:
+    rbac.example.com/aggregate-to-monitoring: "true"
+rules:
+- apiGroups: [""]
+  resources: ["services", "endpoints", "nodes"]
+  verbs: ["get", "list", "watch"]
+---
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1beta1
+metadata:
+  name: pod-reader
+  labels:
+    rbac.example.com/aggregate-to-monitoring: "true"
+rules:
+- apiGroups: [""]
+  resources: ["pods", "pods/log"]
+  verbs: ["get", "list"]
+---
+# monitoring namespace
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: monitoring
+---
+# monitoring service account
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: monitoring-account
+  namespace: monitoring
+---
+# binding the service account to the monitoring role
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRoleBinding
+metadata:
+  name: monitoring-account-binding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: monitoring
+subjects:
+- kind: ServiceAccount
+  name: monitoring-account
+  namespace: monitoring
